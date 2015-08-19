@@ -1,0 +1,123 @@
+﻿# install global dependencies
+npm install -g cordova bower grunt-cli
+
+# Get a GIT clone, needed for copying files
+git clone https://github.com/alongubkin/phonertc.git
+
+
+##########################################################################################
+#Morteza -- Following is my approach for make the phonertc build possible on Android:
+# start new ionic blank project
+ionic start phonertc-ionic blank
+
+#change folder to the project
+cd phonertc-ionic
+
+#Add the platform to the project
+ionic platform add android
+
+#Add phonertc plugin to the project using ionic
+ionic plugin add https://github.com/alongubkin/phonertc.git
+
+# Copy files from GIT clone to your ionic project
+copy phonertc-gitclone\demo\client\* phonertc-ionic\
+
+# install dependencies
+npm install
+bower install
+
+# move all files from phonertc-ionic app dir to www dir and delete the app folder
+cp -R phonertc-ionic/app/* phonertc-ionic/www/
+
+# before running the next command, make sure to
+# change your server details in demo/client/app/scripts/signaling.js 
+# and in demo/client/app/scripts/CallCtrl.js 
+
+#build and run
+ionic run android
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################################################################################################
+This is one from web
+http://stackoverflow.com/questions/26410915/phonertc-demo-application
+
+# start new ionic blank project
+ionic start phonertc-ionic blank
+
+# Copy files from GIT clone to your ionic project
+cp -R phonertc-gitclone\demo\client\* phonertc-ionic\
+
+#change folder to ionic project
+cd phonertc-ionic
+
+# install dependencies
+npm install
+bower install
+
+# install plugins
+cordova plugin add org.apache.cordova.device
+cordova plugin add org.apache.cordova.console
+
+#For this part be sure that the cordova is updated to version 5.2.0 otherwise run npm update
+# on cordova
+npm update -g cordova
+cordova plugin add https://github.com/alongubkin/phonertc.git
+
+
+# add android platform
+cordova platform add android
+
+# install/running signaling server
+cd phonertc-gitclone/demo/server
+npm install
+node index.js
+
+# setting up turn server (not needed if you can use one which is already running)
+# I installed it on a VirtualBox Ubuntu server, also see:
+# https://github.com/alongubkin/phonertc/wiki/Installation
+# Next ports should be open to your Ubuntu TURN server:
+# TCP 443
+# TCP 3478-3479
+# TCP 32355-65535
+# UDP 3478-3479
+# UDP 32355-65535
+sudo apt-get install rfc5766-turn-server
+# Edit /etc/turnserver.conf and change:
+listening-ip=<internal IP VirtualBox Ubuntu>
+relay-ip=<internal IP VirtualBox Ubuntu>
+external-ip=<internal IP VirtualBox Ubuntu>
+min-port=32355 
+max-port=65535
+realm=<your domain>
+# Also uncomment
+lt-cred-mech
+fingerprint
+# Edit /etc/turnuserdb.conf and at the end, add:
+username:password
+# Start TURN server
+sudo /etc/init.d/rfc5766-turn-server start
+
+
+
+# before running the next command, make sure to
+# change your server details in demo/client/app/scripts/signaling.js 
+# and in demo/client/app/scripts/CallCtrl.js 
+cd phonertc-ionic/
+grunt build --force
+
+# Copy files from phonertc-ionic app dir to www dir
+cp -R phonertc-ionic/app/* phonertc-ionic/www/
+
+# Build and run to android
+ionic run android
